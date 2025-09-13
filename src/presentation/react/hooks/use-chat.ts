@@ -83,7 +83,7 @@ export function useChat(chatId?: string) {
       updateState({ isConnected: false });
       return false;
     }
-  }, [updateState]);
+  }, [updateState, API_BASE]);
 
   /**
    * Создание нового чата
@@ -120,7 +120,7 @@ export function useChat(chatId?: string) {
         return null;
       }
     },
-    [updateState, handleApiError],
+    [updateState, handleApiError, API_BASE],
   );
 
   /**
@@ -147,7 +147,7 @@ export function useChat(chatId?: string) {
         handleApiError(error, 'Load chat');
       }
     },
-    [updateState, handleApiError],
+    [updateState, handleApiError, API_BASE],
   );
 
   /**
@@ -200,7 +200,7 @@ export function useChat(chatId?: string) {
         return false;
       }
     },
-    [state.chat, state.messages, updateState, handleApiError],
+    [state.chat, state.messages, updateState, handleApiError, API_BASE],
   );
 
   /**
