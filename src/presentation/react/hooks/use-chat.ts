@@ -46,7 +46,10 @@ export function useChat(chatId?: string) {
     isConnected: false,
   });
 
-  const API_BASE = 'http://localhost:3001/api/chat';
+  const API_BASE =
+    process.env.NODE_ENV === 'development'
+      ? 'http://localhost:3001/api/chat'
+      : '/api/chat';
 
   /**
    * Обновление состояния с сохранением предыдущих значений
