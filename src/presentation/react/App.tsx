@@ -5,8 +5,8 @@
  * Простой layout без сложной стилизации.
  */
 
-import { SimpleChat } from '@presentation/components/simple-chat';
 import type React from 'react';
+import { SimpleChat } from './components/simple-chat';
 
 export function App(): React.ReactElement {
   return (

@@ -23,18 +23,22 @@ Clean Architecture разделяет приложение на концентр
 ```
 src/
 ├── domain/                 # Domain Layer - Бизнес-логика
-│   ├── entities/          # Сущности (Message, Chat, User)
+│   ├── entities/          # Сущности
 │   └── repositories/      # Интерфейсы репозиториев
 ├── application/           # Application Layer - Сценарии использования
-│   └── use-cases/        # Use Cases (SendMessage, GetChat)
+│   └── use-cases/        # Use Cases
 ├── infrastructure/        # Infrastructure Layer - Внешние зависимости
 │   ├── repositories/     # Реализации репозиториев
-│   ├── services/         # Внешние сервисы (AI Service)
-│   └── controllers/      # HTTP контроллеры (ElysiaJS)
+│   ├── services/         # Внешние сервисы
+│   ├── controllers/      # HTTP контроллеры (ChatController)
+│   └── server.ts         # ElysiaJS сервер с dependency injection
 ├── presentation/          # Presentation Layer - UI компоненты
-│   ├── components/       # React компоненты (shadcn/ui)
-│   └── hooks/           # Custom React hooks
-└── main.ts              # Точка входа и Dependency Injection
+│   ├── components/       # React компоненты
+│   ├── hooks/           # Custom React hooks
+│   ├── App.tsx          # Главный React компонент
+│   └── index.tsx        # Точка входа React приложения
+└── api/
+    └── index.ts          # Vercel адаптер для сервера
 ```
 
 ### Ключевые компоненты архитектуры
@@ -88,81 +92,102 @@ src/
 - Добавление аутентификации и авторизации
 - Реализация real-time обновлений через WebSocket
 
-### План поэтапной разработки
+### Архитектура и поток данных
 
-Clean Architecture позволяет разрабатывать приложение поэтапно, тестируя каждый слой независимо:
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    PRESENTATION LAYER                          │
+│  ┌─────────────────┐    ┌──────────────────┐    ┌─────────────┐ │
+│  │   React UI      │    │   useChat Hook   │    │ HTTP Client │ │
+│  │                 │◄───┤                  │◄───┤             │ │
+│  │ • SimpleChat    │    │ • State Mgmt     │    │ • Fetch API │ │
+│  │ • MessageList   │    │ • API Calls      │    │ • Requests  │ │
+│  └─────────────────┘    └──────────────────┘    └─────────────┘ │
+└─────────────────────────────────────────┬───────────────────────┘
+                                          │
+                                   HTTP Requests
+                                          │
+                                          ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   INFRASTRUCTURE LAYER                         │
+│  ┌─────────────────┐    ┌──────────────────┐    ┌─────────────┐ │
+│  │ ElysiaJS Server │    │  Chat Controller │    │ MockAIService│ │
+│  │                 │◄───┤                  │◄───┤             │ │
+│  │ • HTTP Server   │    │ • REST Endpoints │    │ • AI Mocks  │ │
+│  │ • CORS          │    │ • Validation     │    │ • Responses │ │
+│  │ • Error Handler │    │ • HTTP Mapping  │    │ • Keywords  │ │
+│  └─────────────────┘    └──────────────────┘    └─────────────┘ │
+└─────────────────────────────────────────┬───────────────────────┘
+                                          │
+                                   Use Case Calls
+                                          │
+                                          ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    APPLICATION LAYER                           │
+│  ┌─────────────────┐    ┌──────────────────┐    ┌─────────────┐ │
+│  │ SendMessageUseCase│  │  GetChatUseCase  │    │CreateChatUseCase│
+│  │                 │    │                  │    │             │ │
+│  │ • Business Logic│    │ • Chat Retrieval │    │ • Chat Init │ │
+│  │ • AI Integration│    │ • Message History│    │ • Validation│ │
+│  │ • Orchestration │    │ • State Mgmt     │    │ • Creation  │ │
+│  └─────────────────┘    └──────────────────┘    └─────────────┘ │
+└─────────────────────────────────────────┬───────────────────────┘
+                                          │
+                                  Repository Calls
+                                          │
+                                          ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      DOMAIN LAYER                              │
+│  ┌─────────────────┐    ┌──────────────────┐    ┌─────────────┐ │
+│  │    Entities     │    │   Repository     │    │ Validation  │ │
+│  │                 │    │   Interface      │    │             │ │
+│  │ • Message       │    │                  │    │ • Rules     │ │
+│  │ • Chat          │    │ • ChatRepository │    │ • Errors    │ │
+│  │ • ChatSettings  │    │ • Contract       │    │ • Types     │ │
+│  └─────────────────┘    └──────────────────┘    └─────────────┘ │
+└─────────────────────────────────────────┬───────────────────────┘
+                                          │
+                                          ▲
+                                          │
+┌─────────────────────────────────────────────────────────────────┐
+│                   INFRASTRUCTURE LAYER                         │
+│  ┌─────────────────┐                                           │
+│  │MockChatRepository│                                          │
+│  │                 │                                           │
+│  │ • In-Memory     │                                           │
+│  │ • Test Data     │                                           │
+│  │ • CRUD Ops      │                                           │
+│  └─────────────────┘                                           │
+└─────────────────────────────────────────────────────────────────┘
 
-#### Этап 1: Domain Foundation
+┌─────────────────────────────────────────────────────────────────┐
+│                        FLOW EXAMPLE                            │
+│                                                                 │
+│  1. User types message in React UI                             │
+│  2. useChat hook sends HTTP POST to /api/chat/:id/message      │
+│  3. ElysiaJS routes to ChatController                          │
+│  4. Controller calls SendMessageUseCase.execute()              │
+│  5. UseCase validates via Domain rules                         │
+│  6. UseCase saves user message via ChatRepository              │
+│  7. UseCase calls MockAIService.generateResponse()             │
+│  8. UseCase saves AI response via ChatRepository               │
+│  9. Controller returns both messages as JSON                   │
+│ 10. useChat hook updates React state                           │
+│ 11. UI re-renders with new messages                            │
+│                                                                 │
+│     ┌──────────┐    ┌──────────┐    ┌──────────┐               │
+│     │   USER   │───▶│    UI    │───▶│   API    │               │
+│     └──────────┘    └──────────┘    └──────────┘               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-**Цель**: Определить основные сущности и контракты
+### Принципы реализации
 
-- [x] Создать интерфейсы Message и Chat в `src/domain/entities/`
-- [x] Определить интерфейс ChatRepository в `src/domain/repositories/`
-
-**Результат**: ✅ Типы готовы, можно писать остальные слои
-
-#### Этап 2: Application Core
-
-**Цель**: Реализовать основную бизнес-логику
-
-- [x] Создать SendMessageUseCase в `src/application/use-cases/`
-- [x] Добавить базовую логику обработки сообщений
-
-**Результат**: ✅ Бизнес-логика готова, можно тестировать изолированно
-
-#### Этап 3: Infrastructure Mocks
-
-**Цель**: Создать заглушки для быстрого тестирования
-
-- [x] Реализовать MockChatRepository с захардкоженными данными
-- [x] Создать MockAIService возвращающий тестовые ответы
-- [x] Настроить dependency injection в main.ts
-
-**Результат**: ✅ Можно тестировать use cases end-to-end
-
-#### Этап 4: Minimal API
-
-**Цель**: HTTP endpoints для тестирования через API
-
-- [x] Создать ChatController с базовыми эндпоинтами
-- [x] Настроить ElysiaJS сервер
-- [x] Добавить обработку ошибок
-
-**Результат**: ✅ Можно тестировать через curl/Postman
-
-#### Этап 5: Basic UI
-
-**Цель**: Простейший пользовательский интерфейс
-
-- [x] Создать базовый React компонент чата
-- [x] Добавить useChat hook для API взаимодействия
-- [x] Реализовать отправку и отображение сообщений
-
-**Результат**: ✅ Рабочий чат в браузере
-
-#### Этап 6: Production Ready
-
-**Цель**: Замена моков на реальные интеграции
-
-##### 6a. Real AI Integration
-
-- [ ] Заменить MockAIService на VercelAIService
-- [ ] Настроить интеграцию с выбранным LLM провайдером
-- [ ] Добавить обработку streaming ответов
-
-##### 6b. Persistent Storage
-
-- [ ] Реализовать FileSystemChatRepository или DatabaseChatRepository
-- [ ] Добавить миграции и схему данных
-- [ ] Настроить connection pooling (если БД)
-
-##### 6c. UI Polish
-
-- [ ] Интегрировать shadcn/ui компоненты
-- [ ] Добавить адаптивный дизайн
-- [ ] Реализовать loading states и error handling
-
-**Результат**: Production-ready чат приложение
+- **Dependency Inversion**: Use Cases зависят от интерфейсов, не от реализаций
+- **Single Responsibility**: Каждый слой имеет четкую ответственность
+- **Interface Segregation**: Минимальные интерфейсы только с необходимыми методами
+- **Separation of Concerns**: Бизнес-логика изолирована от UI и инфраструктуры
 
 ### Развертывание
 

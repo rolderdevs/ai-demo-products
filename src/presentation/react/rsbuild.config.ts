@@ -6,7 +6,7 @@ export default defineConfig({
   server: { port: 8000 },
   source: {
     entry: {
-      index: './src/presentation/index.tsx',
+      index: './src/presentation/react/index.tsx',
     },
   },
 });

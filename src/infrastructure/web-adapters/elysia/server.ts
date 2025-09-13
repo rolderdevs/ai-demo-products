@@ -10,11 +10,11 @@ import { CreateChatUseCase } from '@application/use-cases/create-chat';
 import { GetChatUseCase } from '@application/use-cases/get-chat';
 import { SendMessageUseCase } from '@application/use-cases/send-message';
 import { cors } from '@elysiajs/cors';
-// Infrastructure Layer
-import { createChatController } from '@infrastructure/controllers/chat-controller';
 import { MockChatRepository } from '@infrastructure/repositories/mock-chat-repository';
 import { MockAIService } from '@infrastructure/services/mock-ai-service';
 import { Elysia } from 'elysia';
+// Infrastructure Layer
+import { createChatController } from './chat-controller';
 
 /**
  * Настройка и запуск HTTP сервера

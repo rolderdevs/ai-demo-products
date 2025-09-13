@@ -6,7 +6,7 @@
  */
 
 // Импортируем готовый сервер из Infrastructure слоя
-import '../src/infrastructure/server';
+import '../src/infrastructure/web-adapters/elysia/server';
 
 // Vercel автоматически подхватит экспорт из server.ts
 // Никаких дополнительных действий не требуется
