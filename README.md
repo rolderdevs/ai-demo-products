@@ -30,13 +30,14 @@ src/
 ├── infrastructure/        # Infrastructure Layer - Внешние зависимости
 │   ├── repositories/     # Реализации репозиториев
 │   ├── services/         # Внешние сервисы
-│   ├── controllers/      # HTTP контроллеры (ChatController)
-│   └── server.ts         # ElysiaJS сервер с dependency injection
+│   └── web-adapters/     # Веб-адаптеры для различных платформ
 ├── presentation/          # Presentation Layer - UI компоненты
-│   ├── components/       # React компоненты
-│   ├── hooks/           # Custom React hooks
-│   ├── App.tsx          # Главный React компонент
-│   └── index.tsx        # Точка входа React приложения
+│   └── react/           # React-based frontend
+│       ├── components/   # React компоненты
+│       ├── hooks/       # Custom React hooks
+│       ├── App.tsx      # Главный React компонент
+│       ├── index.tsx    # Точка входа React приложения
+│       └── rsbuild.config.ts # RSBuild конфигурация
 └── api/
     └── index.ts          # Vercel адаптер для сервера
 ```
