@@ -28,8 +28,5 @@
   "trustedDependencies": [
     "core-js",
     "esbuild"
-  ],
-  "engines": {
-    "node": "22.x"
-  }
+  ]
 }
