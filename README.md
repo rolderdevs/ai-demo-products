@@ -5,7 +5,7 @@
 ### Технологический стек
 
 - **Backend**: ElysiaJS - высокопроизводительный TypeScript веб-фреймворк с end-to-end type safety
-- **AI Integration**: Vercel AI SDK - toolkit для интеграции с различными LLM провайдерами
+- **AI Integration**: Vercel AI SDK + OpenRouter - доступ к сотням AI моделей через единый API
 - **Frontend**: shadcn/ui - коллекция доступных и кастомизируемых UI компонентов
 - **Runtime**: Bun - быстрый JavaScript runtime и пакетный менеджер
 
@@ -244,10 +244,17 @@ export interface AIService {
 **Создать:** `src/infrastructure/services/vercel-ai-service.ts`
 
 ```typescript
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { streamText } from "ai";
+
 export class VercelAIService implements AIService {
+  private openrouter = createOpenRouter({
+    apiKey: process.env.OPENROUTER_API_KEY!,
+  });
+
   async streamResponse(messages: Message[]): Promise<ReadableStream> {
     const result = streamText({
-      model: openai("gpt-4o-mini"),
+      model: this.openrouter.chat("anthropic/claude-3.5-sonnet"),
       messages: messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
@@ -290,7 +297,7 @@ export function useSimpleChat() {
 {
   "dependencies": {
     "ai": "^3.4.32",
-    "@ai-sdk/openai": "^1.0.0",
+    "@openrouter/ai-sdk-provider": "^1.0.0",
     "@ai-sdk/react": "^0.0.62"
   }
 }
@@ -325,16 +332,20 @@ export function useSimpleChat() {
 
 - **Domain** остается центром - Message entity и валидация
 - **Application** - упрощенный SendMessageUseCase
-- **Infrastructure** - реальный AI сервис вместо mock
+- **Infrastructure** - VercelAI сервис вместо mock
 - **Presentation** - React с AI SDK hooks
 
 #### 3.2 ElysiaJS + AI SDK интеграция
 
 ```typescript
 // Прямая поддержка стриминга
+const openrouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY!,
+});
+
 new Elysia().post("/stream", async ({ body }) => {
   const result = streamText({
-    model: openai("gpt-4o-mini"),
+    model: openrouter.chat("anthropic/claude-3.5-sonnet"),
     messages: body.messages,
   });
 
@@ -344,13 +355,13 @@ new Elysia().post("/stream", async ({ body }) => {
 
 ### 4. Последовательность реализации
 
-1. **Установить AI SDK зависимости**
+1. **Установить AI SDK зависимости** (`@openrouter/ai-sdk-provider`)
 2. **Создать VercelAIService** - заменить MockAIService
 3. **Упростить SendMessageUseCase** - убрать репозиторий
 4. **Обновить контроллер** - использовать `result.toUIMessageStreamResponse()`
 5. **Обновить фронтенд** - использовать `useChat` из AI SDK
 6. **Удалить лишние файлы** и код
-7. **Добавить переменные окружения** - `OPENAI_API_KEY`
+7. **Проверить переменные окружения** - `OPENROUTER_API_KEY` уже настроена через `vc env pull`
 8. **Тестирование** стриминга
 
 ### 5. Итоговая архитектура
@@ -362,7 +373,15 @@ new Elysia().post("/stream", async ({ body }) => {
 - **Infrastructure**: VercelAIService, упрощенный контроллер
 - **Presentation**: React с useChat из AI SDK
 
-Это сохраняет демонстрацию Clean Architecture принципов, но значительно упрощает код благодаря отличной интеграции ElysiaJS с Vercel AI SDK.
+Это сохраняет демонстрацию Clean Architecture принципов, но значительно упрощает код благодаря отличной интеграции ElysiaJS с Vercel AI SDK и OpenRouter.
+
+### Преимущества OpenRouter
+
+- **Доступ к сотням моделей** - Anthropic, Google, Meta, Mistral и др.
+- **Один API ключ** - для всех провайдеров
+- **Прозрачное ценообразование** - pay-as-you-go без месячных платежей
+- **Высокая доступность** - enterprise-grade инфраструктура
+- **Легкое переключение моделей** - без изменения кода
 
 ### Развертывание
 

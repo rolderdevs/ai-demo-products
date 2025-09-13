@@ -27,3 +27,4 @@ dist/
 .vercel
 
 tmp
+.env*.local
