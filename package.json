@@ -6,12 +6,18 @@
   "scripts": {
     "build": "rsbuild build",
     "check": "biome check --write",
+
     "dev": "rsbuild dev",
+    "server": "bun run src/server.ts",
     "dev:back": "bun run --watch api/index.ts",
+    "start:server": "bun run src/infrastructure/server.ts",
+    "start:frontend": "rsbuild dev",
+    "start": "bun run start:server & bun run start:frontend",
     "format": "biome format --write",
     "preview": "rsbuild preview"
   },
   "dependencies": {
+    "@elysiajs/cors": "^1.4.0",
     "elysia": "^1.4.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"

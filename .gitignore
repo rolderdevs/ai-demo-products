@@ -25,3 +25,5 @@ dist/
 !.vscode/extensions.json
 .idea
 .vercel
+
+tmp

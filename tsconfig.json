@@ -16,6 +16,15 @@
     "allowImportingTsExtensions": true,
     "noUncheckedSideEffectImports": true,
 
+    /* path mapping */
+    "baseUrl": ".",
+    "paths": {
+      "@domain/*": ["src/domain/*"],
+      "@application/*": ["src/application/*"],
+      "@infrastructure/*": ["src/infrastructure/*"],
+      "@presentation/*": ["src/presentation/*"]
+    },
+
     /* type checking */
     "strict": true,
     "noUnusedLocals": true,

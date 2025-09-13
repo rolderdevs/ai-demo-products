@@ -3,9 +3,11 @@
   "buildCommand": "bun run build",
   "outputDirectory": "dist",
   "functions": {
-    "api/index.ts": {
+    "src/infrastructure/server.ts": {
       "runtime": "@godsreveal/vercel-bun@0.2.4"
     }
   },
-  "rewrites": [{ "source": "/api/(.*)", "destination": "/api/index.ts" }]
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/src/infrastructure/server.ts" }
+  ]
 }
