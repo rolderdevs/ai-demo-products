@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "rsbuild build",
+    "build": "rsbuild build -c src/presentation/react/rsbuild.config.ts",
     "dev": "concurrently \"bun run server\" \"bun run frontend\"",
     "server": "bun run --watch src/infrastructure/web-adapters/elysia/server.ts",
     "frontend": "rsbuild dev -c src/presentation/react/rsbuild.config.ts",
