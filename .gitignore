@@ -7,3 +7,21 @@ devenv.local.nix
 
 # pre-commit
 .pre-commit-config.yaml
+
+# Local
+.DS_Store
+*.local
+*.log*
+
+# Dist
+node_modules
+dist/
+
+# Profile
+.rspack-profile-*/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
+.vercel
