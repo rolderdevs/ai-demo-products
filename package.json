@@ -1,0 +1,11 @@
+{
+	"name": "ai-demo-products",
+	"version": "v0.1.0",
+	"private": true,
+	"scripts": {
+		"check": "biome check --write",
+		"front:build": "rsbuild build",
+		"front:dev": "rsbuild dev",
+		"front:preview": "rsbuild preview"
+	}
+}
