@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "rsbuild build",
-    "dev": "rsbuild dev",
-    "start": "concurrently \"bun run server\" \"bun run frontend\"",
-    "server": "bun run --watch src/infrastructure/server.ts",
+    "dev": "concurrently \"bun run server\" \"bun run frontend\"",
+    "server": "bun run src/infrastructure/server.ts",
     "frontend": "rsbuild dev",
     "check": "biome check --write"
   },
