@@ -190,6 +190,180 @@ src/
 - **Interface Segregation**: Минимальные интерфейсы только с необходимыми методами
 - **Separation of Concerns**: Бизнес-логика изолирована от UI и инфраструктуры
 
+## План реализации AI с Vercel AI SDK
+
+### Текущее состояние
+
+Проект имеет полную архитектуру с mock-сервисами для демонстрации. Следующий шаг - интеграция с реальным AI через Vercel AI SDK.
+
+### 1. Что нужно изменить
+
+#### 1.1 Domain Layer - Упрощение сущностей
+
+**Файл:** `src/domain/entities/message.ts`
+
+**Изменения:**
+
+- Упростить `Message` interface - убрать лишние поля (`chatId`, `status`, `metadata`)
+- Убрать `Chat` entity - не нужна для одного чата
+- Оставить только `MessageRole` (`user`, `assistant`, `system`)
+- Упростить валидацию - только для содержимого сообщения
+
+```typescript
+export interface Message {
+  readonly id: string;
+  readonly content: string;
+  readonly role: MessageRole;
+  readonly timestamp: Date;
+}
+```
+
+#### 1.2 Application Layer - Упрощенный AI сервис
+
+**Файлы:**
+
+- Обновить: `src/application/use-cases/send-message.ts`
+- Удалить: `create-chat.ts`, `get-chat.ts`
+
+**Новый AIService интерфейс:**
+
+```typescript
+export interface AIService {
+  streamResponse(messages: Message[]): Promise<ReadableStream>;
+}
+```
+
+**Упрощенный SendMessageUseCase:**
+
+- Работает со списком сообщений в памяти
+- Убрать зависимость от ChatRepository
+- Возвращает ReadableStream для стриминга
+
+#### 1.3 Infrastructure Layer - Vercel AI Service
+
+**Создать:** `src/infrastructure/services/vercel-ai-service.ts`
+
+```typescript
+export class VercelAIService implements AIService {
+  async streamResponse(messages: Message[]): Promise<ReadableStream> {
+    const result = streamText({
+      model: openai("gpt-4o-mini"),
+      messages: messages.map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+      })),
+    });
+
+    return result.textStream;
+  }
+}
+```
+
+**Обновить:** `src/infrastructure/web-adapters/elysia/chat-controller.ts`
+
+- Новый эндпоинт `/api/chat/stream` для стриминга
+- Использовать `result.toUIMessageStreamResponse()` из AI SDK
+- ElysiaJS автоматически обработает ReadableStream
+
+#### 1.4 Presentation Layer - Интеграция с AI SDK
+
+**Обновить:** `src/presentation/react/hooks/use-chat.ts`
+
+```typescript
+import { useChat } from "@ai-sdk/react";
+
+export function useSimpleChat() {
+  const { messages, input, handleInputChange, handleSubmit, isLoading } =
+    useChat({
+      api: "/api/chat/stream",
+    });
+
+  return { messages, input, handleInputChange, handleSubmit, isLoading };
+}
+```
+
+#### 1.5 Зависимости
+
+**Добавить в `package.json`:**
+
+```json
+{
+  "dependencies": {
+    "ai": "^3.4.32",
+    "@ai-sdk/openai": "^1.0.0",
+    "@ai-sdk/react": "^0.0.62"
+  }
+}
+```
+
+### 2. Что лишнее в текущей реализации
+
+#### 2.1 Удалить файлы:
+
+- `src/application/use-cases/create-chat.ts`
+- `src/application/use-cases/get-chat.ts`
+- `src/infrastructure/repositories/mock-chat-repository.ts`
+- `src/infrastructure/services/mock-ai-service.ts`
+- `src/domain/repositories/chat-repository.ts`
+
+#### 2.2 Упростить сущности:
+
+- **Chat entity** - не нужна для одного чата
+- **ChatRepository** - заменяется in-memory состоянием
+- **ChatSettings** - можно добавить позже
+- **Сложные метаданные** в Message
+
+#### 2.3 Убрать из контроллера:
+
+- Эндпоинты создания чатов (`POST /`, `POST /auto`)
+- Эндпоинты получения чатов (`GET /:id`, `GET /:id/messages`)
+- Сложную обработку ошибок для несуществующих чатов
+
+### 3. Архитектурные принципы (сохраняем)
+
+#### 3.1 Clean Architecture
+
+- **Domain** остается центром - Message entity и валидация
+- **Application** - упрощенный SendMessageUseCase
+- **Infrastructure** - реальный AI сервис вместо mock
+- **Presentation** - React с AI SDK hooks
+
+#### 3.2 ElysiaJS + AI SDK интеграция
+
+```typescript
+// Прямая поддержка стриминга
+new Elysia().post("/stream", async ({ body }) => {
+  const result = streamText({
+    model: openai("gpt-4o-mini"),
+    messages: body.messages,
+  });
+
+  return result.toUIMessageStreamResponse(); // Автоматическая обработка
+});
+```
+
+### 4. Последовательность реализации
+
+1. **Установить AI SDK зависимости**
+2. **Создать VercelAIService** - заменить MockAIService
+3. **Упростить SendMessageUseCase** - убрать репозиторий
+4. **Обновить контроллер** - использовать `result.toUIMessageStreamResponse()`
+5. **Обновить фронтенд** - использовать `useChat` из AI SDK
+6. **Удалить лишние файлы** и код
+7. **Добавить переменные окружения** - `OPENAI_API_KEY`
+8. **Тестирование** стриминга
+
+### 5. Итоговая архитектура
+
+После реализации получится упрощенная, но правильная Clean Architecture:
+
+- **Domain**: Message entity, валидация
+- **Application**: SendMessageUseCase с AIService интерфейсом
+- **Infrastructure**: VercelAIService, упрощенный контроллер
+- **Presentation**: React с useChat из AI SDK
+
+Это сохраняет демонстрацию Clean Architecture принципов, но значительно упрощает код благодаря отличной интеграции ElysiaJS с Vercel AI SDK.
+
 ### Развертывание
 
 Проект готов к развертыванию на различных платформах:
