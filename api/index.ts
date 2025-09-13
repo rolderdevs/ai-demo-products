@@ -5,8 +5,8 @@
  * Мостик между Vercel Functions и нашим Clean Architecture сервером.
  */
 
-// Импортируем готовый сервер из Infrastructure слоя
-import '../src/infrastructure/web-adapters/elysia/server';
+// Импортируем handler из Infrastructure слоя
+import handler from '../src/infrastructure/web-adapters/elysia/server';
 
-// Vercel автоматически подхватит экспорт из server.ts
-// Никаких дополнительных действий не требуется
+// Экспортируем для Vercel
+export default handler;

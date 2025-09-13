@@ -17,7 +17,7 @@ import { Elysia } from 'elysia';
 import { createChatController } from './chat-controller';
 
 /**
- * Настройка и запуск HTTP сервера
+ * Настройка HTTP сервера
  */
 async function createServer() {
   console.log('🚀 Настройка HTTP сервера...');
@@ -112,7 +112,7 @@ async function createServer() {
 }
 
 /**
- * Запуск сервера
+ * Запуск сервера локально
  */
 async function startServer() {
   const PORT = process.env.PORT || 3001;
@@ -156,6 +156,14 @@ async function startServer() {
 }
 
 /**
+ * Создание приложения для Vercel
+ */
+async function createApp() {
+  const { app } = await createServer();
+  return app;
+}
+
+/**
  * Graceful shutdown
  */
 process.on('SIGINT', () => {
@@ -168,8 +176,16 @@ process.on('SIGTERM', () => {
   process.exit(0);
 });
 
-// Запускаем сервер
-startServer().catch((error) => {
-  console.error('💥 Startup error:', error);
-  process.exit(1);
-});
+// Запускаем сервер только в development режиме
+if (process.env.NODE_ENV !== 'production') {
+  startServer().catch((error) => {
+    console.error('💥 Startup error:', error);
+    process.exit(1);
+  });
+}
+
+// Экспортируем handler для Vercel
+export default async function handler(req: Request) {
+  const app = await createApp();
+  return app.handle(req);
+}
