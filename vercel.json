@@ -4,7 +4,7 @@
   "outputDirectory": "dist",
   "functions": {
     "api/index.ts": {
-      "runtime": "vercel/node@22.x"
+      "runtime": "@godsreveal/vercel-bun@0.2.4"
     }
   }
 }
