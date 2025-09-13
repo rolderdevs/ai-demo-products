@@ -5,16 +5,11 @@
   "type": "module",
   "scripts": {
     "build": "rsbuild build",
-    "check": "biome check --write",
-
     "dev": "rsbuild dev",
-    "server": "bun run src/server.ts",
-    "dev:back": "bun run --watch api/index.ts",
-    "start:server": "bun run src/infrastructure/server.ts",
-    "start:frontend": "rsbuild dev",
-    "start": "bun run start:server & bun run start:frontend",
-    "format": "biome format --write",
-    "preview": "rsbuild preview"
+    "start": "concurrently \"bun run server\" \"bun run frontend\"",
+    "server": "bun run --watch src/infrastructure/server.ts",
+    "frontend": "rsbuild dev",
+    "check": "biome check --write"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.0",
@@ -29,6 +24,7 @@
     "@types/bun": "^1.2.21",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
+    "concurrently": "^9.2.1",
     "typescript": "^5.9.2"
   },
   "trustedDependencies": [
