@@ -6,6 +6,7 @@ import {
 } from '@/components/ai-elements/conversation';
 import { Loader } from '@/components/ai-elements/loader';
 import { useChatContext } from '@/contexts/chat-context';
+import { ChatFile } from './File';
 import { ChatMessage } from './Message';
 import { ChatReasoning } from './Reasoning';
 
@@ -18,6 +19,7 @@ export const ChatConversation = () => {
       <ConversationContent>
         {messages.map((message) => (
           <div key={message.id}>
+            {/* Отображаем текстовые части сообщения */}
             {message.parts.map((part, i) => {
               switch (part.type) {
                 case 'text':
@@ -40,6 +42,17 @@ export const ChatConversation = () => {
                   return null;
               }
             })}
+
+            {/* Отображаем файлы отдельно после сообщения */}
+            {message.role === 'user' && (
+              <div className="flex flex-wrap gap-2 mb-4 justify-end h-16 relative">
+                {message.parts
+                  .filter((part) => part.type === 'file')
+                  .map((part, i) => (
+                    <ChatFile key={`${message.id}-file-${i}`} filePart={part} />
+                  ))}
+              </div>
+            )}
           </div>
         ))}
 

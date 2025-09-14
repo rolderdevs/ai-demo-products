@@ -37,13 +37,13 @@ export const ChatInput = () => {
       setMessages(messages.slice(0, -1)); // remove last message
     }
 
-    // Конвертируем blob URLs в data URLs
+    // Конвертируем blob URLs в data URLs для attachments
     const convertedFiles = message.files
       ? await convertBlobFilesToDataURLs(message.files)
       : undefined;
 
     sendMessage({
-      text: message.text || 'Отправлен файл',
+      text: message.text || 'Отправлены файлы',
       files: convertedFiles,
     });
     setInput('');
