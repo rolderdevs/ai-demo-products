@@ -33,15 +33,16 @@ export const ChatConversation = () => {
             {/* Отображаем текстовые части сообщения */}
             {message.parts.map((part, i) => {
               switch (part.type) {
-                case 'text':
+                case 'text': {
                   return (
                     <ChatMessage
                       key={`${message.id}-${i}`}
                       idx={i}
-                      text={part.text}
+                      part={part}
                       message={message}
                     />
                   );
+                }
                 case 'reasoning':
                   return (
                     <ChatReasoning

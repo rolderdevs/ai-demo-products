@@ -1,29 +1,36 @@
 import { useChat } from '@ai-sdk/react';
-import type { UIMessage } from 'ai';
+import type { TextUIPart, UIMessage } from 'ai';
 import { CopyIcon, RefreshCcwIcon } from 'lucide-react';
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Action, Actions } from '@/components/ai-elements/actions';
 import { Message, MessageContent } from '@/components/ai-elements/message';
 import { Response } from '@/components/ai-elements/response';
 import { useChatContext } from '@/contexts/chat-context';
+import { processMessage } from '@/lib/processMessage';
 
 export const ChatMessage = ({
   message,
-  text,
+  part,
   idx,
 }: {
   message: UIMessage;
-  text: string;
+  part: TextUIPart;
   idx: number;
 }) => {
   const { chat } = useChatContext();
   const { regenerate } = useChat({ chat });
 
+  const [parsedText, setParsedText] = useState('');
+
+  useEffect(() => {
+    processMessage(part).then((message) => setParsedText(message.text));
+  }, [part]);
+
   return (
     <Fragment key={`${message.id}-${idx}`}>
       <Message from={message.role}>
         <MessageContent>
-          <Response>{text}</Response>
+          <Response>{parsedText}</Response>
         </MessageContent>
       </Message>
       {message.role === 'assistant' && idx === message.parts.length - 1 && (
@@ -32,7 +39,7 @@ export const ChatMessage = ({
             <RefreshCcwIcon className="size-3" />
           </Action>
           <Action
-            onClick={() => navigator.clipboard.writeText(text)}
+            onClick={() => navigator.clipboard.writeText(parsedText)}
             label="Копировать"
           >
             <CopyIcon className="size-3" />
