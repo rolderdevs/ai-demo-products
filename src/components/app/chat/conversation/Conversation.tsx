@@ -1,4 +1,5 @@
 import { useChat } from '@ai-sdk/react';
+import { useEffect } from 'react';
 import {
   Conversation,
   ConversationContent,
@@ -12,7 +13,17 @@ import { ChatReasoning } from './Reasoning';
 
 export const ChatConversation = () => {
   const { chat } = useChatContext();
-  const { messages, status, error } = useChat({ chat });
+  const { messages, setMessages, status, error } = useChat({ chat });
+
+  useEffect(() => {
+    setMessages([
+      {
+        id: 'initial',
+        role: 'assistant',
+        parts: [{ text: 'Привет! Чем помочь?', type: 'text' }],
+      },
+    ]);
+  }, [setMessages]);
 
   return (
     <Conversation className="border rounded-xl">
@@ -44,15 +55,19 @@ export const ChatConversation = () => {
             })}
 
             {/* Отображаем файлы отдельно после сообщения */}
-            {message.role === 'user' && (
-              <div className="flex flex-wrap gap-2 mb-4 justify-end h-16 relative">
-                {message.parts
-                  .filter((part) => part.type === 'file')
-                  .map((part, i) => (
-                    <ChatFile key={`${message.id}-file-${i}`} filePart={part} />
-                  ))}
-              </div>
-            )}
+            {message.role === 'user' &&
+              message.parts.some((p) => p.type === 'file') && (
+                <div className="flex flex-wrap gap-2 mb-4 justify-end h-16 relative">
+                  {message.parts
+                    .filter((part) => part.type === 'file')
+                    .map((part, i) => (
+                      <ChatFile
+                        key={`${message.id}-file-${i}`}
+                        filePart={part}
+                      />
+                    ))}
+                </div>
+              )}
           </div>
         ))}
 
