@@ -2,7 +2,8 @@ import {
   createOpenRouter,
   type OpenRouterProviderOptions,
 } from '@openrouter/ai-sdk-provider';
-import { convertToModelMessages, streamText, type UIMessage } from 'ai';
+import { convertToModelMessages, Output, streamText, type UIMessage } from 'ai';
+import { messageSchema } from './shema';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -15,7 +16,7 @@ export const streamAi = async (req: Request) => {
   const result = streamText({
     model: openrouter.chat('google/gemini-2.5-flash'),
     messages: convertToModelMessages(messages),
-    system: 'Ты - полезный помощник. Используй Markdown для форматирования.',
+    // system: 'Слева пользователь видит твои сообщения, српава таблицу.',
     providerOptions: {
       openrouter: {
         reasoning: {
@@ -24,6 +25,7 @@ export const streamAi = async (req: Request) => {
         },
       } satisfies OpenRouterProviderOptions,
     },
+    experimental_output: Output.object({ schema: messageSchema }),
   });
 
   return result.toUIMessageStreamResponse();
