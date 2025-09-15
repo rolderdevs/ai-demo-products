@@ -10,6 +10,7 @@ import type { Row } from '@/ai/shema';
 import { Artifact } from '@/components/ai-elements/artifact';
 import { useChatContext } from '@/contexts/chat-context';
 import { processMessage } from '@/lib/processMessage';
+import { defaultColumn } from './Editable';
 
 export const Table = () => {
   const { chat } = useChatContext();
@@ -35,6 +36,22 @@ export const Table = () => {
     columns,
     data: rows,
     getCoreRowModel: getCoreRowModel(),
+    defaultColumn,
+    meta: {
+      updateData: (rowIndex, columnId, value) => {
+        setRows((old) =>
+          old.map((row, index) => {
+            if (index === rowIndex) {
+              return {
+                ...old[rowIndex],
+                [columnId]: value,
+              };
+            }
+            return row;
+          }),
+        );
+      },
+    },
   });
 
   return (
@@ -64,7 +81,7 @@ export const Table = () => {
                 className={index % 2 === 0 ? 'bg-stone-900' : 'bg-stone-800'}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-3 py-2 ">
+                  <td key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
