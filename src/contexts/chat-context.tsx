@@ -30,12 +30,45 @@ function createChat(getTableData: () => Row[] | null) {
       api: '/api/chat',
       prepareSendMessagesRequest: ({ messages, trigger, messageId }) => {
         const tableData = getTableData();
+
+        // Модифицируем последнее сообщение пользователя, добавляя актуальные данные таблицы
+        const modifiedMessages = [...messages];
+        if (tableData && tableData.length > 0) {
+          const lastUserMessageIndex = modifiedMessages
+            .map((m, i) => ({ message: m, index: i }))
+            .filter(({ message }) => message.role === 'user')
+            .pop()?.index;
+
+          if (lastUserMessageIndex !== undefined) {
+            const lastUserMessage = modifiedMessages[lastUserMessageIndex];
+            const tableDataText = `\n\n## АКТУАЛЬНЫЕ ДАННЫЕ ТАБЛИЦЫ:\n\`\`\`json\n${JSON.stringify(tableData, null, 2)}\n\`\`\``;
+
+            // UIMessage использует parts вместо content
+            const textPart = lastUserMessage.parts.find(
+              (part) => part.type === 'text',
+            );
+            if (textPart && textPart.type === 'text') {
+              modifiedMessages[lastUserMessageIndex] = {
+                ...lastUserMessage,
+                parts: [
+                  {
+                    ...textPart,
+                    text: textPart.text + tableDataText,
+                  },
+                  ...lastUserMessage.parts.filter(
+                    (part) => part.type !== 'text',
+                  ),
+                ],
+              };
+            }
+          }
+        }
+
         return {
           body: {
-            messages,
+            messages: modifiedMessages,
             trigger,
             messageId,
-            ...(tableData && { tableData }),
           },
         };
       },
