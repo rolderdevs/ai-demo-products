@@ -1,30 +1,119 @@
 'use client';
 
-import { Chat } from '@ai-sdk/react';
+import { Chat, useChat } from '@ai-sdk/react';
+import type { ColumnDef } from '@tanstack/react-table';
 import { DefaultChatTransport, type UIMessage } from 'ai';
-import { createContext, type ReactNode, useContext, useState } from 'react';
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import type { Row } from '@/ai/shared';
+import { processMessage } from '@/lib/processMessage';
 
 interface ChatContextValue {
-  // replace with your custom message type
   chat: Chat<UIMessage>;
   clearChat: () => void;
+  rows: Row[];
+  setRows: (rows: Row[]) => void;
+  columns: ColumnDef<Row>[];
 }
 
 const ChatContext = createContext<ChatContextValue | undefined>(undefined);
 
-function createChat() {
+function createChat(getTableData: () => Row[] | null) {
   return new Chat<UIMessage>({
     transport: new DefaultChatTransport({
       api: '/api/chat',
+      prepareSendMessagesRequest: ({ messages, trigger }) => {
+        const tableData = getTableData();
+
+        // Модифицируем последнее сообщение пользователя, добавляя актуальные данные таблицы
+        const modifiedMessages = [...messages];
+        if (tableData && tableData.length > 0) {
+          const lastUserMessageIndex = modifiedMessages
+            .map((m, i) => ({ message: m, index: i }))
+            .filter(({ message }) => message.role === 'user')
+            .pop()?.index;
+
+          if (lastUserMessageIndex !== undefined) {
+            const lastUserMessage = modifiedMessages[lastUserMessageIndex];
+            const tableDataText = `\n\n## АКТУАЛЬНЫЕ ДАННЫЕ ТАБЛИЦЫ:\n\`\`\`json\n${JSON.stringify(tableData, null, 2)}\n\`\`\``;
+
+            // UIMessage использует parts вместо content
+            const textPart = lastUserMessage.parts.find(
+              (part) => part.type === 'text',
+            );
+            if (textPart && textPart.type === 'text') {
+              modifiedMessages[lastUserMessageIndex] = {
+                ...lastUserMessage,
+                parts: [
+                  {
+                    ...textPart,
+                    text: textPart.text + tableDataText,
+                  },
+                  ...lastUserMessage.parts.filter(
+                    (part) => part.type !== 'text',
+                  ),
+                ],
+              };
+            }
+          }
+        }
+
+        return {
+          body: {
+            messages: modifiedMessages,
+            trigger,
+          },
+        };
+      },
     }),
   });
 }
 
 export function ChatProvider({ children }: { children: ReactNode }) {
-  const [chat, setChat] = useState(() => createChat());
+  const tableDataRef = useRef<Row[] | null>(null);
+  const [chat, setChat] = useState(() =>
+    createChat(() => tableDataRef.current),
+  );
+  const { messages } = useChat({ chat });
+
+  const [rows, setRowsState] = useState<Row[]>([]);
+  const [columns, setColumns] = useState<ColumnDef<Row>[]>([]);
+
+  const setRows = (data: Row[]) => {
+    tableDataRef.current = data;
+    setRowsState(data);
+  };
+
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role !== 'assistant') {
+      return;
+    }
+
+    for (const part of lastMessage.parts) {
+      if (part.type === 'text') {
+        processMessage(part).then((message) => {
+          if (message.tableColumns && message.tableRows) {
+            setRowsState(message.tableRows);
+            tableDataRef.current = message.tableRows;
+            setColumns(message.tableColumns);
+          }
+        });
+      }
+    }
+  }, [messages]);
 
   const clearChat = () => {
-    setChat(createChat());
+    setChat(createChat(() => tableDataRef.current));
+    setRowsState([]);
+    setColumns([]);
+    tableDataRef.current = null;
   };
 
   return (
@@ -32,6 +121,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       value={{
         chat,
         clearChat,
+        rows,
+        setRows,
+        columns,
       }}
     >
       {children}

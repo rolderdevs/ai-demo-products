@@ -1,0 +1,21 @@
+import {
+  convertToModelMessages,
+  type LanguageModel,
+  Output,
+  streamText,
+  type UIMessage,
+} from 'ai';
+import {
+  messageSchema,
+  openRouterProviderOptions,
+  systemPromt,
+} from './shared';
+
+export const flexibleAgent = (model: LanguageModel, messages: UIMessage[]) =>
+  streamText({
+    model,
+    messages: convertToModelMessages(messages),
+    system: systemPromt,
+    providerOptions: openRouterProviderOptions,
+    experimental_output: Output.object({ schema: messageSchema }),
+  });
