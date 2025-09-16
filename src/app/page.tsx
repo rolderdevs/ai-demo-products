@@ -1,7 +1,7 @@
 'use client';
 
 import Chat from '@/components/app/chat/Chat';
-import { Table } from '@/components/app/table/Table';
+import { TableArtifact } from '@/components/app/table';
 import { ChatProvider } from '@/contexts/chat-context';
 
 export default function Home() {
@@ -9,7 +9,7 @@ export default function Home() {
     <ChatProvider>
       <div className="flex flex-row gap-10 p-6 h-screen">
         <Chat />
-        <Table />
+        <TableArtifact />
       </div>
     </ChatProvider>
   );

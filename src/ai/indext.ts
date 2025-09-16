@@ -1,39 +1,53 @@
-import {
-  createOpenRouter,
-  type OpenRouterProviderOptions,
-} from '@openrouter/ai-sdk-provider';
-import { convertToModelMessages, Output, streamText, type UIMessage } from 'ai';
-import { messageSchema } from './shema';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import type { UIMessage } from 'ai';
+import { classificationAgent } from './classificationAgent';
+import { flexibleAgent } from './flexibleAgent';
+import { standardizedAgent } from './standardizedAgent';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 const openrouter = createOpenRouter();
+const model = openrouter.chat('google/gemini-2.5-flash');
+
+let mode: 'flexible' | 'standardized' = 'flexible';
 
 export const streamAi = async (req: Request) => {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
-  const result = streamText({
-    model: openrouter.chat('google/gemini-2.5-flash'),
-    messages: convertToModelMessages(messages),
-    system: `# Правила оформления сообщений пользователю
+  const lastUserMessageIndex =
+    messages
+      .map((m, i) => ({ message: m, index: i }))
+      .filter(({ message }) => message.role === 'user')
+      .pop()?.index || 1;
+  const lastUserMessage = messages[lastUserMessageIndex];
+  const hasFile = lastUserMessage.parts.some((part) => part.type === 'file');
 
-## Работа с таблицей
-- Будь дочен, таблица очень важна пользователю.
-- Всегда сообщай пользователю, если какие-то данные не были добавлены в таблицу.
-- Таблица находится справа от твоих сообщений. Учти это, если нужно.
-- Делай короткое резюме о содержании таблицы, когда создаешь ее первый раз.
-- Делай короткое резюме об изменении содержания таблицы, когда меняешь ее.`,
-    providerOptions: {
-      openrouter: {
-        reasoning: {
-          enabled: true,
-          effort: 'medium',
-        },
-      } satisfies OpenRouterProviderOptions,
-    },
-    experimental_output: Output.object({ schema: messageSchema }),
-  });
+  if (hasFile) {
+    mode = 'flexible';
 
-  return result.toUIMessageStreamResponse();
+    const result = flexibleAgent(model, messages);
+    return result.toUIMessageStreamResponse();
+  } else {
+    const parts = lastUserMessage.parts;
+    const lastPartIndex =
+      parts
+        .map((part, i) => ({ part, index: i }))
+        .filter(({ part }) => part.type === 'text')
+        .pop()?.index || 0;
+    const lastPart = parts[lastPartIndex];
+    if (lastPart.type === 'text') {
+      mode = await classificationAgent(model, mode, lastPart.text);
+    }
+
+    console.log('Mode:', mode);
+
+    if (mode === 'flexible') {
+      const result = flexibleAgent(model, messages);
+      return result.toUIMessageStreamResponse();
+    } else if (mode === 'standardized') {
+      const result = standardizedAgent(model, messages);
+      return result.toUIMessageStreamResponse();
+    }
+  }
 };

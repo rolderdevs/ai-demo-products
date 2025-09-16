@@ -1,5 +1,5 @@
 import { parsePartialJson, type TextUIPart } from 'ai';
-import type { Message } from '@/ai/shema';
+import type { Message } from '@/ai/shared';
 
 export const processMessage = async (part: TextUIPart): Promise<Message> => {
   if (!part.text.startsWith('{')) {
