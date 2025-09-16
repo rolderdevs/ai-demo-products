@@ -1,6 +1,6 @@
 import type { ColumnDef, RowData } from '@tanstack/react-table';
 import { useEffect, useState } from 'react';
-import type { Row } from '@/ai/shema';
+import type { Row } from '@/ai/shared';
 import { cn } from '@/lib/utils';
 
 declare module '@tanstack/react-table' {
