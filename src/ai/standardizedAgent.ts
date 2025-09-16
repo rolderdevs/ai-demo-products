@@ -15,13 +15,19 @@ const rowSchema = z
       .min(0)
       .describe('Порядковый номер строки. Название столбца - #'),
     title: z.string('').describe('Наименование'),
-    article: z.string('').describe('Артикул'),
+    article: z
+      .string('')
+      .describe(
+        'Артикул - это уникальный идентификатор. Он не может быть одинаковым для разных строк. Название столбца - Артикул',
+      ),
     amount: z.number().min(0).nullable().describe('Количество'),
     unitName: z.string('').describe('Единица измерения'),
     date: z.string('').describe('Дата поставки'),
     comment: z.string('').describe('Комментарий'),
   })
-  .describe('Стандартизированная структура данных таблицы.');
+  .describe(
+    'Стандартизированная структура данных таблицы. Всегда ставь пустую строку для строковых полей, если нет данных.',
+  );
 
 const messageSchema = z.object({
   text: z.string().describe('Сообщение пользователю'),
