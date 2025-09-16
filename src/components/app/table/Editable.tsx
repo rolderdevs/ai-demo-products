@@ -30,14 +30,15 @@ export const defaultColumn: Partial<ColumnDef<Row>> = {
 
     if (isEditing) {
       return (
-        <input
+        <textarea
           value={value as string}
           onChange={(e) => setValue(e.target.value)}
           onBlur={onBlur}
           // biome-ignore lint/a11y/noAutofocus: <>
           autoFocus
+          rows={1}
           className={cn(
-            'w-full min-w-0 px-3 py-2 bg-transparent border-input outline-none',
+            'w-full px-3 py-2 bg-transparent border-input outline-none',
             'placeholder:text-muted-foreground disabled:opacity-50',
             'focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset',
           )}

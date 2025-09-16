@@ -1,19 +1,14 @@
 import { z } from 'zod';
 
 export const columnSchema = z.object({
-  accessorKey: z.string().describe('Название ключа в данных, например title'),
+  accessorKey: z.string().describe('Название ключа в данных, например title.'),
   header: z.string().describe('Заголовок для столбца таблицы'),
-  width: z
-    .optional(z.number().min(50))
-    .describe(
-      'Ширина столбца. Нужно устанавливать только когда ширину можно предсказать',
-    ),
-});
+}).describe('Всегда используй английские название для ключей JSON.');
 
 export const rowSchema = z
   .looseObject({})
   .describe(
-    'Структура объекта строки должна строго соответсвовать заданным accessorKey в столбцах.',
+    'Структура объекта строки должна строго соответсвовать заданным accessorKey в столбцах. Всегда используй английские название для ключей JSON.',
   );
 
 export const messageSchema = z.object({

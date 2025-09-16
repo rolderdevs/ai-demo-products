@@ -3,7 +3,7 @@ import {
   type OpenRouterProviderOptions,
 } from '@openrouter/ai-sdk-provider';
 import { convertToModelMessages, Output, streamText, type UIMessage } from 'ai';
-import { messageSchema } from './shema';
+import { messageSchema, type Row } from './shema';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -11,19 +11,30 @@ export const maxDuration = 30;
 const openrouter = createOpenRouter();
 
 export const streamAi = async (req: Request) => {
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  const { messages, tableData }: { messages: UIMessage[]; tableData: Row[] } =
+    await req.json();
+
+  console.log(tableData);
 
   const result = streamText({
     model: openrouter.chat('google/gemini-2.5-flash'),
     messages: convertToModelMessages(messages),
     system: `# Правила оформления сообщений пользователю
 
-## Работа с таблицей
-- Будь точен, таблица очень важна пользователю.
-- Всегда сообщай пользователю, если какие-то данные не были добавлены в таблицу.
+## Данные таблицы
+- Исходные данные в таблице появляются только когда ТЫ их создал
+- Пользователь может их редактировать
+- "АКТУАЛЬНЫЕ ДАННЫЕ ТАБЛИЦЫ" ВСЕГДА важнее исходных данных
+- Никогда не выводи в схему таблицу, если данные и так актуальны
+
+## Форма сообщений о данных таблицы
 - Таблица находится справа от твоих сообщений. Учти это.
 - Делай короткое резюме о содержании таблицы, когда создаешь ее первый раз.
-- Делай короткое резюме об изменении содержания таблицы, когда меняешь ее.`,
+- Делай короткое резюме об изменении содержания таблицы, когда меняешь ее.${tableData ? `
+
+## АКТУАЛЬНЫЕ ДАННЫЕ ТАБЛИЦЫ:
+${JSON.stringify(tableData, null, 2)}` : ''}
+`,
     providerOptions: {
       openrouter: {
         reasoning: {

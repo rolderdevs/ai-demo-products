@@ -13,13 +13,16 @@ import { processMessage } from '@/lib/processMessage';
 import { defaultColumn } from './Editable';
 
 export const Table = () => {
-  const { chat } = useChatContext();
+  const { chat, setTableData } = useChatContext();
   const { messages } = useChat({ chat });
   const [columns, setColumns] = useState<ColumnDef<Row>[]>([]);
   const [rows, setRows] = useState<Row[]>([]);
 
   useEffect(() => {
     for (const message of messages) {
+      // Обрабатываем только сообщения от ассистента
+      if (message.role !== 'assistant') continue;
+
       for (const part of message.parts) {
         if (part.type === 'text')
           processMessage(part).then((message) => {
@@ -39,8 +42,8 @@ export const Table = () => {
     defaultColumn,
     meta: {
       updateData: (rowIndex, columnId, value) => {
-        setRows((old) =>
-          old.map((row, index) => {
+        setRows((old) => {
+          const newRows = old.map((row, index) => {
             if (index === rowIndex) {
               return {
                 ...old[rowIndex],
@@ -48,8 +51,10 @@ export const Table = () => {
               };
             }
             return row;
-          }),
-        );
+          });
+          setTableData(newRows);
+          return newRows;
+        });
       },
     },
   });
