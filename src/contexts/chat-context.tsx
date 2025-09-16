@@ -1,21 +1,25 @@
 'use client';
 
-import { Chat } from '@ai-sdk/react';
+import { Chat, useChat } from '@ai-sdk/react';
+import type { ColumnDef } from '@tanstack/react-table';
 import { DefaultChatTransport, type UIMessage } from 'ai';
 import {
   createContext,
   type ReactNode,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from 'react';
 import type { Row } from '@/ai/shema';
+import { processMessage } from '@/lib/processMessage';
 
 interface ChatContextValue {
-  // replace with your custom message type
   chat: Chat<UIMessage>;
   clearChat: () => void;
-  setTableData: (rows: Row[] | null) => void;
+  rows: Row[];
+  setRows: (rows: Row[]) => void;
+  columns: ColumnDef<Row>[];
 }
 
 const ChatContext = createContext<ChatContextValue | undefined>(undefined);
@@ -44,13 +48,40 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [chat, setChat] = useState(() =>
     createChat(() => tableDataRef.current),
   );
+  const { messages } = useChat({ chat });
+
+  const [rows, setRowsState] = useState<Row[]>([]);
+  const [columns, setColumns] = useState<ColumnDef<Row>[]>([]);
+
+  const setRows = (data: Row[]) => {
+    tableDataRef.current = data;
+    setRowsState(data);
+  };
+
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role !== 'assistant') {
+      return;
+    }
+
+    for (const part of lastMessage.parts) {
+      if (part.type === 'text') {
+        processMessage(part).then((message) => {
+          if (message.tableColumns && message.tableRows) {
+            setRowsState(message.tableRows);
+            tableDataRef.current = message.tableRows;
+            setColumns(message.tableColumns);
+          }
+        });
+      }
+    }
+  }, [messages]);
 
   const clearChat = () => {
     setChat(createChat(() => tableDataRef.current));
-  };
-
-  const setTableData = (data: Row[] | null) => {
-    tableDataRef.current = data;
+    setRowsState([]);
+    setColumns([]);
+    tableDataRef.current = null;
   };
 
   return (
@@ -58,7 +89,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       value={{
         chat,
         clearChat,
-        setTableData,
+        rows,
+        setRows,
+        columns,
       }}
     >
       {children}

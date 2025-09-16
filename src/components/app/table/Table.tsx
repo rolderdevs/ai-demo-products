@@ -1,39 +1,14 @@
-import { useChat } from '@ai-sdk/react';
 import {
-  type ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
-import type { Row } from '@/ai/shema';
 import { Artifact } from '@/components/ai-elements/artifact';
 import { useChatContext } from '@/contexts/chat-context';
-import { processMessage } from '@/lib/processMessage';
 import { defaultColumn } from './Editable';
 
 export const Table = () => {
-  const { chat, setTableData } = useChatContext();
-  const { messages } = useChat({ chat });
-  const [columns, setColumns] = useState<ColumnDef<Row>[]>([]);
-  const [rows, setRows] = useState<Row[]>([]);
-
-  useEffect(() => {
-    for (const message of messages) {
-      // Обрабатываем только сообщения от ассистента
-      if (message.role !== 'assistant') continue;
-
-      for (const part of message.parts) {
-        if (part.type === 'text')
-          processMessage(part).then((message) => {
-            if (message.tableColumns && message.tableRows) {
-              setRows(message.tableRows);
-              setColumns(message.tableColumns);
-            }
-          });
-      }
-    }
-  }, [messages]);
+  const { columns, rows, setRows } = useChatContext();
 
   const table = useReactTable({
     columns,
@@ -42,19 +17,16 @@ export const Table = () => {
     defaultColumn,
     meta: {
       updateData: (rowIndex, columnId, value) => {
-        setRows((old) => {
-          const newRows = old.map((row, index) => {
-            if (index === rowIndex) {
-              return {
-                ...old[rowIndex],
-                [columnId]: value,
-              };
-            }
-            return row;
-          });
-          setTableData(newRows);
-          return newRows;
+        const newRows = rows.map((row, index) => {
+          if (index === rowIndex) {
+            return {
+              ...row,
+              [columnId]: value,
+            };
+          }
+          return row;
         });
+        setRows(newRows);
       },
     },
   });
