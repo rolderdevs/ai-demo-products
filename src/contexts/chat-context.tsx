@@ -11,7 +11,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import type { Row } from '@/ai/shema';
+import type { Row } from '@/ai/shared';
 import { processMessage } from '@/lib/processMessage';
 
 interface ChatContextValue {
@@ -28,7 +28,7 @@ function createChat(getTableData: () => Row[] | null) {
   return new Chat<UIMessage>({
     transport: new DefaultChatTransport({
       api: '/api/chat',
-      prepareSendMessagesRequest: ({ messages, trigger, messageId }) => {
+      prepareSendMessagesRequest: ({ messages, trigger }) => {
         const tableData = getTableData();
 
         // Модифицируем последнее сообщение пользователя, добавляя актуальные данные таблицы
@@ -68,7 +68,6 @@ function createChat(getTableData: () => Row[] | null) {
           body: {
             messages: modifiedMessages,
             trigger,
-            messageId,
           },
         };
       },
