@@ -39,5 +39,8 @@
   "workspaces": [
     "kit/**",
     "api"
-  ]
+  ],
+  "engines": {
+    "node": "22.x"
+  }
 }
