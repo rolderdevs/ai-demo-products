@@ -1,7 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/index.ts": {}
+    "api/index.ts": {
+      "runtime": "@vercel/node"
+    }
   },
   "installCommand": "cp -f package.prod.json package.json && bun install",
   "outputDirectory": "dist",
