@@ -11,7 +11,10 @@ const App = () => {
   const [input, setInput] = useState('');
   const { messages, setMessages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
-      api: 'http://localhost:3000/api/chat',
+      api:
+        process.env.NODE_ENV !== 'production'
+          ? '/api/chat'
+          : 'http://localhost:3000/api/chat',
     }),
   });
 
