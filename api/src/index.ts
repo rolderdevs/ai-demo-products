@@ -15,8 +15,6 @@ const model = openrouter.chat('google/gemini-2.5-flash');
 let mode: 'flexible' | 'standardized' = 'flexible';
 
 export const streamAi = async (messages: UIMessage[]) => {
-  console.log(messages);
-
   const lastUserMessageIndex =
     messages
       .map((m, i) => ({ message: m, index: i }))
