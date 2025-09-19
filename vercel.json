@@ -6,5 +6,6 @@
     }
   },
   "installCommand": "cp -f package.prod.json package.json && bun install",
+  "outputDirectory": "dist",
   "rewrites": [{ "source": "/api/(.*)", "destination": "/api/index.ts" }]
 }
