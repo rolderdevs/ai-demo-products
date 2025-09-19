@@ -7,13 +7,16 @@
     "prepare": "panda codegen",
     "build": "rsbuild build",
     "dev:ss": "cd kit/ss/styled-system && bun dev",
+    "dev:api": "cd api && bun dev",
     "dev:app": "rsbuild dev",
-    "dev": "concurrently \"bun run dev:ss\" \"bun run dev:app\"",
+    "dev": "concurrently \"bun run dev:api\" \"bun run dev:ss\" \"bun run dev:app\"",
     "preview": "rsbuild preview",
     "check": "biome check write"
   },
   "dependencies": {
+    "@ai-sdk/react": "^2.0.47",
     "@rolder/ui-kit-react": "workspace:*",
+    "ai": "^5.0.47",
     "install": "^0.13.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
@@ -33,6 +36,7 @@
     "esbuild"
   ],
   "workspaces": [
-    "kit/**"
+    "kit/**",
+    "api"
   ]
 }
