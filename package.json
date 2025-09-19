@@ -35,9 +35,5 @@
   "trustedDependencies": [
     "core-js",
     "esbuild"
-  ],
-  "workspaces": [
-    "kit/**",
-    "api"
   ]
 }
