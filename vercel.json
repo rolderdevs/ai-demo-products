@@ -5,6 +5,6 @@
       "runtime": "@godsreveal/vercel-bun@0.2.4"
     }
   },
-  "buildCommand": "cp -f package.prod.json package.json && bun install && bun run build",
+  "installCommand": "cp -f package.prod.json package.json && bun install",
   "rewrites": [{ "source": "/api/(.*)", "destination": "/api/index.ts" }]
 }
