@@ -20,7 +20,6 @@
     "@openrouter/ai-sdk-provider": "^1.2.0",
     "ai": "^5.0.47",
     "dotenv": "^17.2.2",
-    "hono": "^4.9.8",
     "install": "^0.13.0",
     "react": "^19.1.1",
     "@types/node": "^20.11.17",

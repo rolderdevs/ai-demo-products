@@ -5,6 +5,7 @@ import { flexibleAgent } from './flexibleAgent.js';
 import { standardizedAgent } from './standardizedAgent.js';
 
 import 'dotenv/config';
+import { headers } from './shared.js';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -27,7 +28,7 @@ export const streamAi = async (messages: UIMessage[]) => {
     mode = 'flexible';
 
     const result = flexibleAgent(model, messages);
-    return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse({ headers });
   } else {
     const parts = lastUserMessage.parts;
     const lastPartIndex =
@@ -40,18 +41,12 @@ export const streamAi = async (messages: UIMessage[]) => {
       mode = await classificationAgent(model, mode, lastPart.text);
     }
 
-    console.log('Mode:', mode);
-
     if (mode === 'flexible') {
       const result = flexibleAgent(model, messages);
-      return result.toUIMessageStreamResponse();
+      return result.toUIMessageStreamResponse({ headers });
     } else if (mode === 'standardized') {
       const result = standardizedAgent(model, messages);
-      return result.toUIMessageStreamResponse({
-        headers: {
-          'Content-Type': 'none',
-        },
-      });
+      return result.toUIMessageStreamResponse({ headers });
     }
   }
 };
