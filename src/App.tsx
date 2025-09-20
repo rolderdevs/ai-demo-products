@@ -3,20 +3,12 @@ import '@fontsource/ibm-plex-sans/400.css';
 import '@fontsource/ibm-plex-sans/500.css';
 import { useChat } from '@ai-sdk/react';
 import { Button } from '@rolder/ui-kit-react';
-import { DefaultChatTransport } from 'ai';
 import { useEffect, useState } from 'react';
 import { Box, VStack } from '~ss/jsx';
 
 const App = () => {
   const [input, setInput] = useState('');
-  const { messages, setMessages, sendMessage, status, error } = useChat({
-    transport: new DefaultChatTransport({
-      api:
-        process.env.NODE_ENV === 'production'
-          ? '/api/chat'
-          : 'http://localhost:3000/api/chat',
-    }),
-  });
+  const { messages, setMessages, sendMessage, status, error } = useChat();
 
   useEffect(() => {
     setMessages([
@@ -28,7 +20,7 @@ const App = () => {
     ]);
   }, [setMessages]);
 
-  const handleSubmit = async (message: any) => {
+  const handleSubmit = async (message: { text: string; files?: File[] }) => {
     const hasText = Boolean(message.text);
     const hasAttachments = Boolean(message.files?.length);
 

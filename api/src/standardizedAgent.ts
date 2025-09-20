@@ -7,7 +7,11 @@ import {
   type UIMessage,
 } from 'ai';
 import z from 'zod';
-import { columnSchema, openRouterProviderOptions, systemPromt } from './shared';
+import {
+  columnSchema,
+  openRouterProviderOptions,
+  systemPromt,
+} from './shared.js';
 
 const rowSchema = z
   .object({

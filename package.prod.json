@@ -17,9 +17,14 @@
     "@ai-sdk/react": "^2.0.47",
     "@fontsource/ibm-plex-sans": "^5.2.8",
     "@rolder/ui-kit-react": "latest",
+    "@openrouter/ai-sdk-provider": "^1.2.0",
     "ai": "^5.0.47",
+    "dotenv": "^17.2.2",
+    "hono": "^4.9.8",
     "install": "^0.13.0",
     "react": "^19.1.1",
+    "@types/node": "^20.11.17",
+    "tsx": "^4.7.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {

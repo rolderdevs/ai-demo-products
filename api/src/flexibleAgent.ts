@@ -10,7 +10,7 @@ import {
   messageSchema,
   openRouterProviderOptions,
   systemPromt,
-} from './shared';
+} from './shared.js';
 
 export const flexibleAgent = (model: LanguageModel, messages: UIMessage[]) =>
   streamText({
