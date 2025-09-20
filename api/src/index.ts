@@ -47,7 +47,11 @@ export const streamAi = async (messages: UIMessage[]) => {
       return result.toUIMessageStreamResponse();
     } else if (mode === 'standardized') {
       const result = standardizedAgent(model, messages);
-      return result.toUIMessageStreamResponse();
+      return result.toUIMessageStreamResponse({
+        headers: {
+          'Content-Encoding': 'none',
+        },
+      });
     }
   }
 };
