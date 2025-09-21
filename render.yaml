@@ -1,11 +1,12 @@
+previews:
+  generation: automatic
+
 services:
   - type: web
-    name: ai-demo-products-backend
+    name: ai-demo-products
     runtime: node
     repo: https://github.com/rolderdevs/ai-demo-products
     plan: free
-    previews:
-      generation: automatic
     envVars:
       - key: OPENROUTER_API_KEY
         sync: false
@@ -14,11 +15,9 @@ services:
     buildCommand: bun install
     startCommand: bun start
   - type: web
-    name: ai-demo-products
+    name: ai-demo-products-front
     runtime: static
     repo: https://github.com/rolderdevs/ai-demo-products
-    previews:
-      generation: automatic
     buildCommand: bun run build
     staticPublishPath: ./dist
 version: "1"
