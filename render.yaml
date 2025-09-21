@@ -6,7 +6,6 @@ services:
     plan: free
     previews:
       generation: automatic
-      plan: free
     envVars:
       - key: BUN_VERSION
         value: 1.2.0
