@@ -14,7 +14,7 @@ services:
     buildCommand: bun install
     startCommand: bun start
   - type: web
-    name: ai-demo-products-frontend
+    name: ai-demo-products
     runtime: static
     repo: https://github.com/rolderdevs/ai-demo-products
     previews:
