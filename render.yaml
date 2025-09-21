@@ -19,6 +19,8 @@ services:
     repo: https://github.com/rolderdevs/ai-demo-products
     previews:
       generation: automatic
-    buildCommand: ./build.sh
+    buildCommand: |
+      export SKIP_INSTALL_DEPS=true
+      ./build.sh
     staticPublishPath: ./dist
 version: "1"
