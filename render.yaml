@@ -1,5 +1,5 @@
 services:
-  - type: web
+  - type: pserv
     name: ai-demo-products
     runtime: node
     repo: https://github.com/rolderdevs/ai-demo-products
