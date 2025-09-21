@@ -9,6 +9,7 @@
     "start": "bun index.ts"
   },
   "dependencies": {
+    "@elysiajs/cors": "^1.4.0",
     "@openrouter/ai-sdk-provider": "^1.2.0",
     "ai": "^5.0.47",
     "dotenv": "^17.2.2",

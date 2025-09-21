@@ -13,7 +13,7 @@ const App = () => {
     transport: new DefaultChatTransport({
       api:
         process.env.NODE_ENV === 'production'
-          ? '/api/chat'
+          ? 'https://ai-demo-products-backend.onrender.com/api/chat'
           : 'http://localhost:3000/api/chat',
     }),
   });

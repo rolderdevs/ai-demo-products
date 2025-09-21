@@ -1,6 +1,6 @@
 services:
-  - type: pserv
-    name: ai-demo-products
+  - type: web
+    name: ai-demo-products-backend
     runtime: node
     repo: https://github.com/rolderdevs/ai-demo-products
     plan: free
@@ -13,4 +13,12 @@ services:
     rootDir: backend
     buildCommand: bun install
     startCommand: bun start
+  - type: web
+    name: ai-demo-products
+    runtime: static
+    repo: https://github.com/rolderdevs/ai-demo-products
+    previews:
+      generation: automatic
+    buildCommand: bun run build
+    staticPublishPath: ./dist
 version: "1"
