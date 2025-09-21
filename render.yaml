@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: ai-demo-products
+    name: ai-demo-products-backend
     runtime: node
     repo: https://github.com/rolderdevs/ai-demo-products
     plan: free
@@ -14,7 +14,7 @@ services:
     buildCommand: bun install
     startCommand: bun start
   - type: web
-    name: ai-demo-products-front
+    name: ai-demo-products
     runtime: static
     repo: https://github.com/rolderdevs/ai-demo-products
     previews:
