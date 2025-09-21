@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: test-ai-demo-products
+    name: ai-demo-products
     runtime: node
     repo: https://github.com/rolderdevs/ai-demo-products
     plan: free
