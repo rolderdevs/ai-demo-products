@@ -7,8 +7,8 @@ services:
     previews:
       generation: automatic
     envVars:
-      - key: BUN_VERSION
-        value: 1.2.0
+      - key: OPENROUTER_API_KEY
+        sync: false
     region: frankfurt
     rootDir: backend
     buildCommand: bun install
