@@ -19,6 +19,6 @@ services:
     repo: https://github.com/rolderdevs/ai-demo-products
     previews:
       generation: automatic
-    buildCommand: bun run build
+    buildCommand: ./build.sh
     staticPublishPath: ./dist
 version: "1"
