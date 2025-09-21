@@ -4,6 +4,7 @@ import { pluginReact } from '@rsbuild/plugin-react';
 
 export default defineConfig({
   plugins: [pluginReact()],
+  server: { port: 8000 },
   resolve: {
     alias: {
       react: path.resolve('./node_modules/react'),

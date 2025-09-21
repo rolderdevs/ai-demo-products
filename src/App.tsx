@@ -3,12 +3,20 @@ import '@fontsource/ibm-plex-sans/400.css';
 import '@fontsource/ibm-plex-sans/500.css';
 import { useChat } from '@ai-sdk/react';
 import { Button } from '@rolder/ui-kit-react';
+import { DefaultChatTransport } from 'ai';
 import { useEffect, useState } from 'react';
 import { Box, VStack } from '~ss/jsx';
 
 const App = () => {
   const [input, setInput] = useState('');
-  const { messages, setMessages, sendMessage, status, error } = useChat();
+  const { messages, setMessages, sendMessage, status, error } = useChat({
+    transport: new DefaultChatTransport({
+      api:
+        process.env.NODE_ENV === 'production'
+          ? '/api/chat'
+          : 'http://localhost:3000/api/chat',
+    }),
+  });
 
   useEffect(() => {
     setMessages([

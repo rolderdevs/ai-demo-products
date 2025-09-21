@@ -11,7 +11,7 @@ import {
   columnSchema,
   openRouterProviderOptions,
   systemPromt,
-} from './shared.js';
+} from './shared';
 
 const rowSchema = z
   .object({

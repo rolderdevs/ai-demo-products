@@ -1,8 +1,8 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import type { UIMessage } from 'ai';
-import { classificationAgent } from './classificationAgent.js';
-import { flexibleAgent } from './flexibleAgent.js';
-import { standardizedAgent } from './standardizedAgent.js';
+import { classificationAgent } from './classificationAgent';
+import { flexibleAgent } from './flexibleAgent';
+import { standardizedAgent } from './standardizedAgent';
 
 import 'dotenv/config';
 import { headers } from './shared.js';
