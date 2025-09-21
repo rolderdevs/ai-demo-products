@@ -1,13 +1,17 @@
 services:
   - type: web
-    name: ai-demo-products
+    name: test-ai-demo-products
     runtime: node
     repo: https://github.com/rolderdevs/ai-demo-products
     plan: free
+    previews:
+      generation: automatic
+      plan: free
     envVars:
       - key: BUN_VERSION
-        value: 1.1.0
+        value: 1.2.0
     region: frankfurt
+    rootDir: backend
     buildCommand: bun install
-    startCommand: ./server
+    startCommand: bun start
 version: "1"
