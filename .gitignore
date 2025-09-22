@@ -29,7 +29,7 @@ tmp
 .env*.local
 
 ## Panda
-styled-system
+/styled-system
 styled-system-studio
 .vercel
 .bun.lock
