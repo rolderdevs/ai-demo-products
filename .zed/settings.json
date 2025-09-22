@@ -1,0 +1,9 @@
+{
+  "context_servers": {
+    "ark-ui": {
+      "source": "custom",
+      "command": "bunx",
+      "args": ["@ark-ui/mcp"]
+    }
+  }
+}

@@ -1,0 +1,143 @@
+import { Chat, useChat } from '@ai-sdk/react';
+import type { ColumnDef } from '@tanstack/react-table';
+import { DefaultChatTransport, type UIMessage } from 'ai';
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import type { Row } from '@/types';
+import { processMessage } from '@/utils';
+
+interface ChatContextValue {
+  chat: Chat<UIMessage>;
+  clearChat: () => void;
+  rows: Row[];
+  setRows: (rows: Row[]) => void;
+  columns: ColumnDef<Row>[];
+}
+
+const api =
+  process.env.NODE_ENV === 'production'
+    ? 'https://ai-demo-products-backend.onrender.com/api/chat'
+    : 'http://localhost:3000/api/chat';
+
+const ChatContext = createContext<ChatContextValue | undefined>(undefined);
+
+function createChat(getTableData: () => Row[] | null) {
+  return new Chat<UIMessage>({
+    transport: new DefaultChatTransport({
+      api,
+      prepareSendMessagesRequest: ({ messages, trigger }) => {
+        const tableData = getTableData();
+
+        // Модифицируем последнее сообщение пользователя, добавляя актуальные данные таблицы
+        const modifiedMessages = [...messages];
+        if (tableData && tableData.length > 0) {
+          const lastUserMessageIndex = modifiedMessages
+            .map((m, i) => ({ message: m, index: i }))
+            .filter(({ message }) => message.role === 'user')
+            .pop()?.index;
+
+          if (lastUserMessageIndex !== undefined) {
+            const lastUserMessage = modifiedMessages[lastUserMessageIndex];
+            const tableDataText = `\n\n## АКТУАЛЬНЫЕ ДАННЫЕ ТАБЛИЦЫ:\n\`\`\`json\n${JSON.stringify(tableData, null, 2)}\n\`\`\``;
+
+            // UIMessage использует parts вместо content
+            const textPart = lastUserMessage.parts.find(
+              (part) => part.type === 'text',
+            );
+            if (textPart && textPart.type === 'text') {
+              modifiedMessages[lastUserMessageIndex] = {
+                ...lastUserMessage,
+                parts: [
+                  {
+                    ...textPart,
+                    text: textPart.text + tableDataText,
+                  },
+                  ...lastUserMessage.parts.filter(
+                    (part) => part.type !== 'text',
+                  ),
+                ],
+              };
+            }
+          }
+        }
+
+        return {
+          body: {
+            messages: modifiedMessages,
+            trigger,
+          },
+        };
+      },
+    }),
+  });
+}
+
+export function ChatProvider({ children }: { children: ReactNode }) {
+  const tableDataRef = useRef<Row[] | null>(null);
+  const [chat, setChat] = useState(() =>
+    createChat(() => tableDataRef.current),
+  );
+  const { messages } = useChat({ chat });
+
+  const [rows, setRowsState] = useState<Row[]>([]);
+  const [columns, setColumns] = useState<ColumnDef<Row>[]>([]);
+
+  const setRows = (data: Row[]) => {
+    tableDataRef.current = data;
+    setRowsState(data);
+  };
+
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role !== 'assistant') {
+      return;
+    }
+
+    for (const part of lastMessage.parts) {
+      if (part.type === 'text') {
+        processMessage(part).then((message) => {
+          if (message.tableColumns && message.tableRows) {
+            setRowsState(message.tableRows);
+            tableDataRef.current = message.tableRows;
+            setColumns(message.tableColumns);
+          }
+        });
+      }
+    }
+  }, [messages]);
+
+  const clearChat = () => {
+    setChat(createChat(() => tableDataRef.current));
+    setRowsState([]);
+    setColumns([]);
+    tableDataRef.current = null;
+  };
+
+  return (
+    <ChatContext.Provider
+      value={{
+        chat,
+        clearChat,
+        rows,
+        setRows,
+        columns,
+      }}
+    >
+      {children}
+    </ChatContext.Provider>
+  );
+}
+
+export function useChatContext() {
+  const context = useContext(ChatContext);
+  if (!context) {
+    throw new Error('useChatContext must be used within a ChatProvider');
+  }
+  return context;
+}

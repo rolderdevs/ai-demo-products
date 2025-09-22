@@ -23,7 +23,8 @@
 
     "baseUrl": ".",
     "paths": {
-      "~ss/*": ["styled-system/*"]
+      "~ss/*": ["styled-system/*"],
+      "@/*": ["src/*"]
     }
   },
   "include": ["src", "styled-system"]

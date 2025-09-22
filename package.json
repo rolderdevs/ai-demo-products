@@ -7,18 +7,19 @@
     "prepare": "panda codegen",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
-    "dev:ss": "cd kit/ss/styled-system && bun dev",
     "dev:back": "cd backend && bun dev",
     "dev:front": "rsbuild dev",
-    "dev": "concurrently \"bun run dev:back\" \"bun run dev:ss\" \"bun run dev:front\"",
+    "dev": "concurrently \"bun run dev:back\" \"bun run dev:front\"",
     "check": "biome check write"
   },
   "dependencies": {
     "@ai-sdk/react": "^2.0.47",
     "@fontsource/ibm-plex-sans": "^5.2.8",
     "@rolder/ui-kit-react": "workspace:*",
+    "@tanstack/react-table": "^8.21.3",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "@tabler/icons-react": "^3.35.0"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
