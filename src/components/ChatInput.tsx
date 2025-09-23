@@ -92,7 +92,7 @@ export const ChatInput = () => {
       <PromptInputToolbar>
         <PromptInputTools>
           <PromptInputActionMenu>
-            <PromptInputActionMenuTrigger />
+            <PromptInputActionMenuTrigger size="xs" />
             <PromptInputActionMenuContent>
               <PromptInputActionAddAttachments value="add-files" />
             </PromptInputActionMenuContent>
