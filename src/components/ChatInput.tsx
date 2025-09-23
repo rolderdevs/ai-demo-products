@@ -1,5 +1,5 @@
 import { useChat } from '@ai-sdk/react';
-import { css, cx } from '@rolder/ss/css';
+import { css } from '@rolder/ss/css';
 import {
   PromptInput,
   PromptInputActionAddAttachments,
@@ -14,19 +14,14 @@ import {
   PromptInputTextarea,
   PromptInputToolbar,
   PromptInputTools,
+  useToast,
 } from '@rolder/ui-kit-react';
-import {
-  IconArrowUp,
-  IconLoader,
-  IconSquare,
-  IconX,
-} from '@tabler/icons-react';
-
 import { useChatContext } from '@/contexts';
 import { convertBlobFilesToDataURLs } from '@/utils';
 
 export const ChatInput = () => {
   const { chat } = useChatContext();
+  const toast = useToast();
   const { messages, setMessages, sendMessage, status, error } = useChat({
     chat,
   });
@@ -67,7 +62,7 @@ export const ChatInput = () => {
           borderColor: 'border',
         },
         _hover: {
-          borderColor: 'muted.foreground/50',
+          borderColor: 'border.hover',
         },
       })}
       onSubmit={handleSubmit}
@@ -75,72 +70,35 @@ export const ChatInput = () => {
       multiple
       acceptedFileTypes={['images', 'pdf', 'excel', 'word']}
       maxFiles={5}
-      maxFileSize={1024 * 1024 * 10}
-      // onError={(e) => {}}
+      maxFileSize={(1024 * 1024) / 10} // 10MB
+      onError={(error) => {
+        if ('message' in error) {
+          toast.error({
+            title: 'Ошибка',
+            description:
+              error.message +
+              'sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf ',
+          });
+        }
+      }}
     >
       <PromptInputAttachments>
         {(attachment) => <PromptInputAttachment data={attachment} />}
       </PromptInputAttachments>
       <PromptInputBody>
-        <PromptInputTextarea
-          className={cx(
-            css({
-              fontSize: 'sm',
-              resize: 'none',
-              py: 3,
-              px: 3,
-              bg: 'transparent',
-              border: 'none',
-              outline: 'none',
-              ring: 0,
-              minH: 20,
-              _focusVisible: {
-                ring: 0,
-                ringOffset: 0,
-                outline: 'none',
-              },
-              _placeholder: {
-                color: 'muted.foreground',
-              },
-            }),
-            '[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
-          )}
-          autoFocus
-          placeholder="Введите сообщение..."
-        />
+        <PromptInputTextarea autoFocus placeholder="Введите сообщение..." />
       </PromptInputBody>
 
       <PromptInputToolbar>
         <PromptInputTools>
           <PromptInputActionMenu>
-            <PromptInputActionMenuTrigger
-              variant="secondary"
-              size="sm"
-              className={css({
-                color: 'text.muted',
-                _hover: { color: 'text' },
-              })}
-            />
+            <PromptInputActionMenuTrigger />
             <PromptInputActionMenuContent>
               <PromptInputActionAddAttachments value="add-files" />
             </PromptInputActionMenuContent>
           </PromptInputActionMenu>
         </PromptInputTools>
-        <PromptInputSubmit
-          variant="secondary"
-          size="sm"
-          className={css({
-            color: 'text.muted',
-            _hover: { color: 'text' },
-          })}
-        >
-          {status === 'ready' && <IconArrowUp size={16} />}
-          {status === 'submitted' && (
-            <IconLoader size={16} className={css({ animation: 'spin' })} />
-          )}
-          {status === 'streaming' && <IconSquare size={16} />}
-          {status === 'error' && <IconX size={16} />}
-        </PromptInputSubmit>
+        <PromptInputSubmit status={status} />
       </PromptInputToolbar>
     </PromptInput>
   );
