@@ -1,6 +1,8 @@
 import { useChat } from '@ai-sdk/react';
 import { css } from '@rolder/ss/css';
 import {
+  Button,
+  IconButton,
   PromptInput,
   PromptInputActionAddAttachments,
   PromptInputActionMenu,
@@ -16,6 +18,7 @@ import {
   PromptInputTools,
   useToast,
 } from '@rolder/ui-kit-react';
+import { IconX } from '@tabler/icons-react';
 import { useChatContext } from '@/contexts';
 import { convertBlobFilesToDataURLs } from '@/utils';
 
@@ -92,7 +95,7 @@ export const ChatInput = () => {
       <PromptInputToolbar>
         <PromptInputTools>
           <PromptInputActionMenu>
-            <PromptInputActionMenuTrigger size="xs" />
+            <PromptInputActionMenuTrigger />
             <PromptInputActionMenuContent>
               <PromptInputActionAddAttachments value="add-files" />
             </PromptInputActionMenuContent>
