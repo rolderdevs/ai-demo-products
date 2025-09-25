@@ -19,7 +19,7 @@ export const streamAi = async (messages: UIMessage[]) => {
     messages
       .map((m, i) => ({ message: m, index: i }))
       .filter(({ message }) => message.role === 'user')
-      .pop()?.index || 1;
+      .pop()?.index || 0;
   const lastUserMessage = messages[lastUserMessageIndex];
   const hasFile = lastUserMessage.parts.some((part) => part.type === 'file');
 

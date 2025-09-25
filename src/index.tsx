@@ -1,3 +1,4 @@
+import { ToastProvider } from 'kit/react/src';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -8,9 +9,11 @@ if (rootEl) {
   const root = ReactDOM.createRoot(rootEl);
   root.render(
     <React.StrictMode>
-      <ChatProvider>
-        <App />
-      </ChatProvider>
+      <ToastProvider>
+        <ChatProvider>
+          <App />
+        </ChatProvider>
+      </ToastProvider>
     </React.StrictMode>,
   );
 }

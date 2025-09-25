@@ -1,4 +1,5 @@
 // import { useChat } from '@ai-sdk/react';
+import { css } from '@rolder/ss/css';
 import { Button, Message, Response } from '@rolder/ui-kit-react';
 import type { TextUIPart, UIMessage } from 'ai';
 import { Fragment, useEffect, useState } from 'react';
@@ -35,13 +36,13 @@ export const ChatMessage = ({
 /*{message.role === 'assistant' && idx === message.parts.length - 1 && (
   <Actions style={{ marginTop: '-10px' }}>
     <Action onClick={() => regenerate()} label="Повторить">
-      <RefreshCcwIcon className="size-3" />
+      <RefreshCcwIcon className={css({ w: 3, h: 3 })} />
     </Action>
     <Action
       onClick={() => navigator.clipboard.writeText(parsedText)}
       label="Копировать"
     >
-      <CopyIcon className="size-3" />
+      <CopyIcon className={css({ w: 3, h: 3 })} />
     </Action>
   </Actions>
 )}*/

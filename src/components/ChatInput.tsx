@@ -1,30 +1,27 @@
 import { useChat } from '@ai-sdk/react';
+import { css } from '@rolder/ss/css';
 import {
   PromptInput,
+  PromptInputActionAddAttachments,
   PromptInputActionMenu,
   PromptInputActionMenuContent,
   PromptInputActionMenuTrigger,
+  PromptInputAttachment,
+  PromptInputAttachments,
   PromptInputBody,
   type PromptInputMessage,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputToolbar,
   PromptInputTools,
+  useToast,
 } from '@rolder/ui-kit-react';
-import {
-  IconArrowUp,
-  IconLoader,
-  IconSquare,
-  IconX,
-} from '@tabler/icons-react';
-import { useState } from 'react';
 import { useChatContext } from '@/contexts';
 import { convertBlobFilesToDataURLs } from '@/utils';
 
 export const ChatInput = () => {
-  const [input, setInput] = useState('');
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const { chat } = useChatContext();
+  const toast = useToast();
   const { messages, setMessages, sendMessage, status, error } = useChat({
     chat,
   });
@@ -50,55 +47,53 @@ export const ChatInput = () => {
       text: message.text || 'Отправлены файлы',
       files: convertedFiles,
     });
-    setInput('');
   };
 
   return (
     <PromptInput
-      className="rounded-xl relative border shadow-sm transition-all duration-200 focus-within:border-border hover:border-muted-foreground/50"
+      className={css({
+        pos: 'relative',
+        rounded: 'xl',
+        border: '1px solid',
+        borderColor: 'border',
+        shadow: 'sm',
+        transition: 'all 0.2s',
+        _focusWithin: {
+          borderColor: 'border',
+        },
+        _hover: {
+          borderColor: 'border.hover',
+        },
+      })}
       onSubmit={handleSubmit}
       globalDrop
       multiple
-      // accept="image/*"
+      acceptedFileTypes={['images', 'pdf', 'excel', 'word']}
       maxFiles={5}
-      maxFileSize={1024 * 1024 * 10}
-      // onError={(e) => {}}
+      maxFileSize={1024 * 1024 * 10} // 10MB
+      onError={(error) => {
+        if ('message' in error) {
+          toast.warning({ description: error.message });
+        }
+      }}
     >
+      <PromptInputAttachments>
+        {(attachment) => <PromptInputAttachment data={attachment} />}
+      </PromptInputAttachments>
       <PromptInputBody>
-        {/*<ChatAttachment status={status} />*/}
-
-        <PromptInputTextarea
-          className="text-sm resize-none py-3 px-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] bg-transparent !border-0 !border-none outline-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none placeholder:text-muted-foreground min-h-20"
-          onChange={(e) => setInput(e.target.value)}
-          autoFocus
-          value={input}
-          placeholder="Введите сообщение..."
-        />
+        <PromptInputTextarea autoFocus placeholder="Введите сообщение..." />
       </PromptInputBody>
 
       <PromptInputToolbar>
         <PromptInputTools>
-          <PromptInputActionMenu
-            open={dropdownOpen}
-            // onOpenChange={setDropdownOpen}
-          >
+          <PromptInputActionMenu>
             <PromptInputActionMenuTrigger />
             <PromptInputActionMenuContent>
-              {/*<AttachmentsButton onClose={() => setDropdownOpen(false)} />*/}
+              <PromptInputActionAddAttachments value="add-files" />
             </PromptInputActionMenuContent>
           </PromptInputActionMenu>
         </PromptInputTools>
-        <PromptInputSubmit>
-          {/*variant="secondary"*/}
-          {status === 'ready' && (
-            <IconArrowUp className="size-5 text-muted-foreground" />
-          )}
-          {status === 'submitted' && (
-            <IconLoader className="size-4 animate-spin" />
-          )}
-          {status === 'streaming' && <IconSquare className="size-4" />}
-          {status === 'error' && <IconX className="size-4" />}
-        </PromptInputSubmit>
+        <PromptInputSubmit status={status} />
       </PromptInputToolbar>
     </PromptInput>
   );
