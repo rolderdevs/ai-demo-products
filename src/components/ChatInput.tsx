@@ -1,8 +1,6 @@
 import { useChat } from '@ai-sdk/react';
 import { css } from '@rolder/ss/css';
 import {
-  Button,
-  IconButton,
   PromptInput,
   PromptInputActionAddAttachments,
   PromptInputActionMenu,
@@ -18,7 +16,6 @@ import {
   PromptInputTools,
   useToast,
 } from '@rolder/ui-kit-react';
-import { IconX } from '@tabler/icons-react';
 import { useChatContext } from '@/contexts';
 import { convertBlobFilesToDataURLs } from '@/utils';
 
@@ -73,15 +70,10 @@ export const ChatInput = () => {
       multiple
       acceptedFileTypes={['images', 'pdf', 'excel', 'word']}
       maxFiles={5}
-      maxFileSize={(1024 * 1024) / 10} // 10MB
+      maxFileSize={1024 * 1024 * 10} // 10MB
       onError={(error) => {
         if ('message' in error) {
-          toast.error({
-            title: 'Ошибка',
-            description:
-              error.message +
-              'sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf sdfsdfsdf ',
-          });
+          toast.warning({ description: error.message });
         }
       }}
     >

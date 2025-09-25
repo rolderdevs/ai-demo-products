@@ -18,4 +18,7 @@ export default defineConfig({
   jsxFramework: 'react',
   importMap: '@rolder/ss',
   presets: ['@pandacss/dev/presets', defaultPreset, defaultTheme],
+  staticCss: {
+    recipes: {},
+  },
 });
