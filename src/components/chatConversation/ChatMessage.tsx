@@ -1,6 +1,6 @@
 // import { useChat } from '@ai-sdk/react';
 import { css } from '@rolder/ss/css';
-import { Button, Message, Response } from '@rolder/ui-kit-react';
+import { Button, Message, StreamResponse } from '@rolder/ui-kit-react';
 import type { TextUIPart, UIMessage } from 'ai';
 import { Fragment, useEffect, useState } from 'react';
 // import { useChatContext } from '@/contexts';
@@ -27,7 +27,12 @@ export const ChatMessage = ({
   return (
     <Message from={message.role}>
       <Message.Content>
-        <Response>{parsedText}</Response>
+        <StreamResponse
+          speed={10}
+          text={parsedText}
+          animate={message.role === 'assistant'}
+          markdown={message.role === 'assistant'}
+        />
       </Message.Content>
     </Message>
   );
